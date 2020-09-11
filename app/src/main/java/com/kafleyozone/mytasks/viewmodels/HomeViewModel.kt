@@ -1,9 +1,9 @@
 package com.kafleyozone.mytasks.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.kafleyozone.mytasks.models.Task
 
 class HomeViewModel: ViewModel() {
 
@@ -16,9 +16,15 @@ class HomeViewModel: ViewModel() {
     val showAddNewTaskButton: LiveData<Boolean>
         get() = _showAddNewTaskButton
 
-    private val _newTaskText = MutableLiveData<String>()
-    val newTaskText: LiveData<String>
-        get() = _newTaskText
+    var newTaskText = MutableLiveData<String>()
+
+    // LiveData are only triggered by a setValue call, which isn't called when updating the internal
+    // collection. Workaround is to maintain a separate collection and assign it after modifying the
+    // collection.
+    private val _taskList = mutableListOf<Task>()
+    private val _taskListObservable = MutableLiveData<List<Task>>()
+    val taskListObservable: LiveData<List<Task>>
+        get() = _taskListObservable
 
     fun addNewTaskEventHandler() {
         _addNewTaskClickEvent.value = true
@@ -36,8 +42,12 @@ class HomeViewModel: ViewModel() {
         _showAddNewTaskButton.value = true
     }
 
-    fun updateNewTaskText(text: String) {
-        _newTaskText.value = text
-        Log.i("HomeViewModel", text.length.toString())
+    fun addTask() {
+        if (!newTaskText.value.isNullOrBlank()) {
+            val task = Task(newTaskText.value!!)
+            _taskList.add(0, task)
+            _taskListObservable.value = _taskList
+            newTaskText.value = ""
+        }
     }
 }

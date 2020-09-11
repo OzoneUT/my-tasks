@@ -10,12 +10,15 @@ import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.kafleyozone.mytasks.R
+import com.kafleyozone.mytasks.adapters.TaskListAdapter
 import com.kafleyozone.mytasks.databinding.DialogAddTaskBinding
 import com.kafleyozone.mytasks.databinding.FragmentHomeBinding
+import com.kafleyozone.mytasks.models.Task
 import com.kafleyozone.mytasks.utils.createNewTaskDialog
 import com.kafleyozone.mytasks.utils.showSoftInput
 import com.kafleyozone.mytasks.viewmodels.HomeViewModel
@@ -43,6 +46,8 @@ class HomeFragment : Fragment() {
         )
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        binding.taskListRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.taskListRecyclerView.adapter = TaskListAdapter(mutableListOf())
 
         // in case the button is hidden when an orientation change happens and the add new task
         // dialog's onDismissed is NOT called, reset the button
@@ -50,17 +55,19 @@ class HomeFragment : Fragment() {
 
         viewModel.addNewTaskClickEvent.observe(viewLifecycleOwner, { addTaskClicked ->
             if (addTaskClicked) addTaskHandler()
+
         })
 
         viewModel.showAddNewTaskButton.observe(viewLifecycleOwner, { showAddTaskButton ->
             if (showAddTaskButton) showButton() else hideButton()
         })
 
-        viewModel.taskListObservable.observe(viewLifecycleOwner, {taskList ->
-            val string = StringBuilder().apply {
-                taskList.forEach { append(it); append(", ") }
-            }.toString()
-            Log.i(TAG, string)
+        viewModel.taskListObservable.observe(viewLifecycleOwner, { taskList ->
+//            val string = StringBuilder().apply {
+//                taskList.forEach { append(it); append(", ") }
+//            }.toString()
+//            Log.i(TAG, string)
+            binding.taskListRecyclerView.adapter = TaskListAdapter(taskList as MutableList<Task>)
         })
 
         return binding.root

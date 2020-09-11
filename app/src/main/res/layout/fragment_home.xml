@@ -27,7 +27,8 @@
             android:id="@+id/task_list_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:background="#E4CACA"
+            android:background="@color/design_default_color_primary"
+            android:paddingTop="24dp"
             tools:itemCount="12"
             tools:listitem="@layout/list_item_task" />
 

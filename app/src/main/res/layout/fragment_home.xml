@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
@@ -21,6 +22,14 @@
             android:contentDescription="@string/ada_add_task"
             android:src="@drawable/baseline_add_black_24dp"
             android:onClick="@{() -> viewModel.addNewTaskEventHandler()}"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/task_list_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:background="#E4CACA"
+            tools:itemCount="12"
+            tools:listitem="@layout/list_item_task" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

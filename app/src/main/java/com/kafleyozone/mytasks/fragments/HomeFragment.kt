@@ -46,8 +46,8 @@ class HomeFragment : Fragment() {
         )
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        binding.taskListRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.taskListRecyclerView.adapter = TaskListAdapter(mutableListOf())
+        val adapter = TaskListAdapter(listOf())
+        binding.taskListRecyclerView.adapter = adapter
 
         // in case the button is hidden when an orientation change happens and the add new task
         // dialog's onDismissed is NOT called, reset the button
@@ -63,11 +63,8 @@ class HomeFragment : Fragment() {
         })
 
         viewModel.taskListObservable.observe(viewLifecycleOwner, { taskList ->
-//            val string = StringBuilder().apply {
-//                taskList.forEach { append(it); append(", ") }
-//            }.toString()
-//            Log.i(TAG, string)
-            binding.taskListRecyclerView.adapter = TaskListAdapter(taskList as MutableList<Task>)
+            adapter.updateList(taskList)
+            adapter.notifyItemInserted(0)
         })
 
         return binding.root

@@ -1,33 +1,58 @@
 package com.kafleyozone.mytasks.adapters
 
+import android.graphics.Paint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.CompoundButton
 import android.widget.TextView
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.kafleyozone.mytasks.R
+import com.kafleyozone.mytasks.databinding.ListItemTaskBinding
 import com.kafleyozone.mytasks.models.Task
 
-class TaskListAdapter(private val dataSet: MutableList<Task>):
+class TaskListAdapter(private var dataSet: List<Task>):
         RecyclerView.Adapter<TaskListAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val listItem = LayoutInflater.from(parent.context)
-                .inflate(R.layout.list_item_task, parent, false)
-        return ViewHolder(listItem)
+        return ViewHolder.from(parent)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.itemView.findViewById<TextView>(R.id.task_name_textview).text =
-                dataSet[position].taskName
+        val task = dataSet[position]
+        holder.bind(task)
     }
 
     override fun getItemCount(): Int {
         return dataSet.size
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
+    fun updateList(newList: List<Task>) {
+        dataSet = newList
     }
 
+    class ViewHolder private constructor(private val binding: ListItemTaskBinding) :
+            RecyclerView.ViewHolder(binding.root) {
+
+        companion object {
+            fun from(parent: ViewGroup): ViewHolder {
+                val taskItemBinding = DataBindingUtil.inflate<ListItemTaskBinding>(
+                        LayoutInflater.from(parent.context),
+                        R.layout.list_item_task, parent, false)
+                return ViewHolder(taskItemBinding)
+            }
+        }
+
+        fun bind(task: Task) {
+            binding.task = task
+        }
+    }
+}
+
+fun TextView.showStrikeThrough(show: Boolean) {
+    paintFlags =
+            if (show) paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            else paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
 }

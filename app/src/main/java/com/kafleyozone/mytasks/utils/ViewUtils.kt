@@ -7,10 +7,8 @@ import com.kafleyozone.mytasks.databinding.DialogAddTaskBinding
 
 fun createNewTaskDialog(context: Context, binding: DialogAddTaskBinding): BottomSheetDialog {
     val bottomSheetDialog = BottomSheetDialog(context)
-    return bottomSheetDialog.apply {
-        setContentView(binding.root)
-        window?.setDimAmount(0f)
-    }
+    bottomSheetDialog.setContentView(binding.root)
+    return bottomSheetDialog
 }
 
 fun showSoftInput(binding: DialogAddTaskBinding, bottomSheetDialog: BottomSheetDialog) {

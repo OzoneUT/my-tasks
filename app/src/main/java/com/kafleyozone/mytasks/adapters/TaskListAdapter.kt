@@ -2,15 +2,14 @@ package com.kafleyozone.mytasks.adapters
 
 import android.graphics.Paint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import android.widget.CompoundButton
+import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.kafleyozone.mytasks.R
-import com.kafleyozone.mytasks.databinding.ListItemTaskBinding
 import com.kafleyozone.mytasks.models.Task
 
 class TaskListAdapter(private var dataSet: List<Task>):
@@ -33,20 +32,27 @@ class TaskListAdapter(private var dataSet: List<Task>):
         dataSet = newList
     }
 
-    class ViewHolder private constructor(private val binding: ListItemTaskBinding) :
-            RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder private constructor(view: View) : RecyclerView.ViewHolder(view) {
+
+        private val taskNameTextView: TextView = view.findViewById(R.id.task_name_textview)
+        private val isCompleteCheckBox: MaterialCheckBox = view.findViewById(R.id.is_complete_checkbox)
 
         companion object {
             fun from(parent: ViewGroup): ViewHolder {
-                val taskItemBinding = DataBindingUtil.inflate<ListItemTaskBinding>(
-                        LayoutInflater.from(parent.context),
-                        R.layout.list_item_task, parent, false)
-                return ViewHolder(taskItemBinding)
+                val taskItemView = LayoutInflater.from(parent.context)
+                        .inflate(R.layout.list_item_task, parent, false)
+                return ViewHolder(taskItemView)
             }
         }
 
         fun bind(task: Task) {
-            binding.task = task
+            taskNameTextView.text = task.taskName
+            isCompleteCheckBox.isChecked = task.isComplete
+            taskNameTextView.showStrikeThrough(task.isComplete)
+            isCompleteCheckBox.setOnCheckedChangeListener() { _: CompoundButton, checked: Boolean ->
+                task.isComplete = checked
+                taskNameTextView.showStrikeThrough(checked)
+            }
         }
     }
 }

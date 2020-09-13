@@ -16,7 +16,7 @@ class HomeViewModel: ViewModel() {
     val showAddNewTaskButton: LiveData<Boolean>
         get() = _showAddNewTaskButton
 
-    var newTaskText = MutableLiveData<String>()
+    private var newTaskText = MutableLiveData<String>()
 
     // LiveData are only triggered by a setValue call, which isn't called when updating the internal
     // collection. Workaround is to maintain a separate collection and assign it after modifying the
@@ -40,6 +40,10 @@ class HomeViewModel: ViewModel() {
 
     fun showButton() {
         _showAddNewTaskButton.value = true
+    }
+
+    fun updateNewTaskText(taskName: String) {
+        newTaskText.value = taskName
     }
 
     fun addTask() {

@@ -39,6 +39,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/dimen_margin_16"
         android:contentDescription="@string/ada_add_task"
-        android:src="@drawable/baseline_add_black_24dp" />
+        android:src="@drawable/round_add_black_36dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

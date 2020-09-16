@@ -12,11 +12,11 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import com.kafleyozone.mytasks.R
 import com.kafleyozone.mytasks.models.Task
 
-class TaskListAdapter(private var dataSet: List<Task>):
+class TaskListAdapter(private var dataSet: List<Task>, private val listener: OnTaskItemClickedListener):
         RecyclerView.Adapter<TaskListAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent)
+        return ViewHolder.from(parent, listener)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -32,20 +32,23 @@ class TaskListAdapter(private var dataSet: List<Task>):
         dataSet = newList
     }
 
-    class ViewHolder private constructor(view: View) : RecyclerView.ViewHolder(view) {
+    class ViewHolder private constructor(view: View, private val listener: OnTaskItemClickedListener)
+        : RecyclerView.ViewHolder(view), View.OnClickListener {
 
+        private lateinit var mTask: Task
         private val taskNameTextView: TextView = view.findViewById(R.id.task_name_textview)
         private val isCompleteCheckBox: MaterialCheckBox = view.findViewById(R.id.is_complete_checkbox)
 
         companion object {
-            fun from(parent: ViewGroup): ViewHolder {
+            fun from(parent: ViewGroup, listener: OnTaskItemClickedListener): ViewHolder {
                 val taskItemView = LayoutInflater.from(parent.context)
                         .inflate(R.layout.list_item_task, parent, false)
-                return ViewHolder(taskItemView)
+                return ViewHolder(taskItemView, listener)
             }
         }
 
         fun bind(task: Task) {
+            mTask = task
             taskNameTextView.text = task.taskName
             isCompleteCheckBox.isChecked = task.isComplete
             taskNameTextView.showStrikeThrough(task.isComplete)
@@ -53,7 +56,16 @@ class TaskListAdapter(private var dataSet: List<Task>):
                 task.isComplete = checked
                 taskNameTextView.showStrikeThrough(checked)
             }
+            itemView.setOnClickListener(this)
         }
+
+        override fun onClick(p0: View?) {
+            listener.onTaskItemClicked(adapterPosition)
+        }
+    }
+
+    interface OnTaskItemClickedListener {
+        fun onTaskItemClicked(taskPosition: Int)
     }
 }
 

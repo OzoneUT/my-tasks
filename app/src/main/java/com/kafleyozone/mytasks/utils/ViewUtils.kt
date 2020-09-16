@@ -1,18 +1,19 @@
 package com.kafleyozone.mytasks.utils
 
 import android.content.Context
+import android.view.View
 import android.view.WindowManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.kafleyozone.mytasks.databinding.DialogAddTaskBinding
+import com.google.android.material.textfield.TextInputEditText
 
-fun createNewTaskDialog(context: Context, binding: DialogAddTaskBinding): BottomSheetDialog {
+fun createNewTaskDialog(context: Context, view: View): BottomSheetDialog {
     val bottomSheetDialog = BottomSheetDialog(context)
-    bottomSheetDialog.setContentView(binding.root)
+    bottomSheetDialog.setContentView(view)
     return bottomSheetDialog
 }
 
-fun showSoftInput(binding: DialogAddTaskBinding, bottomSheetDialog: BottomSheetDialog) {
-    binding.newTaskField.requestFocus()
+fun showSoftInput(field: TextInputEditText, bottomSheetDialog: BottomSheetDialog) {
+    field.requestFocus()
     bottomSheetDialog.window?.setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
 }

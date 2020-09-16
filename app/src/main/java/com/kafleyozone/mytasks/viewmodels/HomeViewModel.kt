@@ -3,6 +3,7 @@ package com.kafleyozone.mytasks.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.kafleyozone.mytasks.Repository
 import com.kafleyozone.mytasks.models.Task
 
 class HomeViewModel: ViewModel() {
@@ -16,7 +17,7 @@ class HomeViewModel: ViewModel() {
     val showAddNewTaskButton: LiveData<Boolean>
         get() = _showAddNewTaskButton
 
-    var newTaskText = MutableLiveData<String>()
+    private var newTaskText = MutableLiveData<String>()
 
     // LiveData are only triggered by a setValue call, which isn't called when updating the internal
     // collection. Workaround is to maintain a separate collection and assign it after modifying the
@@ -42,12 +43,23 @@ class HomeViewModel: ViewModel() {
         _showAddNewTaskButton.value = true
     }
 
+    fun updateNewTaskText(taskName: String) {
+        newTaskText.value = taskName
+    }
+
     fun addTask() {
         if (!newTaskText.value.isNullOrBlank()) {
             val task = Task(newTaskText.value!!)
             _taskList.add(0, task)
             _taskListObservable.value = _taskList
             newTaskText.value = ""
+            Repository.updateList(_taskList)
         }
+    }
+
+    fun deleteTask(deleteIndex: Int): Task {
+        _taskList.removeAt(deleteIndex)
+        _taskListObservable.value = _taskList
+        return Repository.deleteTask(deleteIndex)
     }
 }

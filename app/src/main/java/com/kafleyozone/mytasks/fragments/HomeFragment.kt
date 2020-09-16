@@ -1,53 +1,54 @@
 package com.kafleyozone.mytasks.fragments
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
+
 import android.os.Bundle
-import android.util.Log
-import android.view.*
-import androidx.activity.OnBackPressedCallback
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
-import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.fragment.app.*
+
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.kafleyozone.mytasks.R
 import com.kafleyozone.mytasks.adapters.TaskListAdapter
-import com.kafleyozone.mytasks.databinding.DialogAddTaskBinding
-import com.kafleyozone.mytasks.databinding.FragmentHomeBinding
-import com.kafleyozone.mytasks.models.Task
+
 import com.kafleyozone.mytasks.utils.createNewTaskDialog
 import com.kafleyozone.mytasks.utils.showSoftInput
 import com.kafleyozone.mytasks.viewmodels.HomeViewModel
-import java.lang.StringBuilder
-import java.util.*
+
 
 val TAG = "HomeFragment"
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
 
     private val viewModel: HomeViewModel by viewModels()
-    private lateinit var binding: FragmentHomeBinding
     private var mDialog: BottomSheetDialog? = null
+    private var addTaskFAB: FloatingActionButton? = null
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.fragment_home,
-                container,
-                false
-        )
-        binding.lifecycleOwner = this
-        binding.viewModel = viewModel
-        val adapter = TaskListAdapter(listOf())
-        binding.taskListRecyclerView.adapter = adapter
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
+        val taskListRecyclerView = view.findViewById<RecyclerView>(R.id.task_list_recycler_view)
+        addTaskFAB = view.findViewById(R.id.add_task_fab)
+
+        addTaskFAB?.setOnClickListener {
+            viewModel.addNewTaskEventHandler()
+        }
+
+        val adapter = TaskListAdapter(listOf(), this)
+        taskListRecyclerView.adapter = adapter
+
+        setFragmentResultListenerHelper(adapter, view)
 
         // in case the button is hidden when an orientation change happens and the add new task
         // dialog's onDismissed is NOT called, reset the button
@@ -55,7 +56,6 @@ class HomeFragment : Fragment() {
 
         viewModel.addNewTaskClickEvent.observe(viewLifecycleOwner, { addTaskClicked ->
             if (addTaskClicked) addTaskHandler()
-
         })
 
         viewModel.showAddNewTaskButton.observe(viewLifecycleOwner, { showAddTaskButton ->
@@ -67,7 +67,20 @@ class HomeFragment : Fragment() {
             adapter.notifyItemInserted(0)
         })
 
-        return binding.root
+        return view
+    }
+
+    private fun setFragmentResultListenerHelper(adapter: TaskListAdapter, view: View) {
+        setFragmentResultListener(TaskFragment.TASK_REQUEST) { _: String, bundle: Bundle ->
+            val deleteIndex = bundle.getInt(TaskFragment.DELETE_INDEX_ARG)
+            if (deleteIndex >= 0) {
+                val deletedTaskName = viewModel.deleteTask(deleteIndex).taskName
+                adapter.notifyItemRemoved(deleteIndex)
+                Snackbar.make(view, "\"$deletedTaskName\" deleted", Snackbar.LENGTH_SHORT)
+                        .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
+                        .show()
+            }
+        }
     }
 
     private fun addTaskHandler() {
@@ -78,31 +91,47 @@ class HomeFragment : Fragment() {
 
     @SuppressLint("InflateParams")
     private fun showNewTaskDialog() {
-        val addTaskBinding = DataBindingUtil.inflate<DialogAddTaskBinding>(layoutInflater,
-                R.layout.dialog_add_task, null, false)
-        addTaskBinding.viewModel = viewModel
-        addTaskBinding.lifecycleOwner = this
-        mDialog = createNewTaskDialog(requireContext(), addTaskBinding)
+        val addTaskView = layoutInflater.inflate(R.layout.dialog_add_task, null, false)
+        val newTaskField = addTaskView.findViewById<TextInputEditText>(R.id.new_task_field)
+        val addTaskButton = addTaskView.findViewById<MaterialButton>(R.id.add_task_button)
+
+        addTaskButton.setOnClickListener {
+            viewModel.addTask()
+            newTaskField.setText("")
+        }
+
+        mDialog = createNewTaskDialog(requireContext(), addTaskView)
         mDialog?.setOnDismissListener() {
             showButton()
         }
         mDialog?.show()
-        mDialog?.let { showSoftInput(addTaskBinding, it) }
-        addTextInputListener(addTaskBinding.newTaskField, addTaskBinding.addTaskButton)
+        mDialog?.let { showSoftInput(newTaskField, it) }
+        addTextInputListener(newTaskField, addTaskButton)
     }
 
     private fun addTextInputListener(newTaskField: TextInputEditText, addTaskButton: MaterialButton) {
         newTaskField.addTextChangedListener() {
+            viewModel.updateNewTaskText(it.toString())
             addTaskButton.isEnabled = it.toString().isNotBlank()
         }
     }
 
+    override fun onTaskItemClicked(taskPosition: Int) {
+        // open a new TaskFragment, passing in taskId
+        val taskFragment = TaskFragment.newInstance(taskPosition)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, taskFragment)
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+            .addToBackStack(TaskFragment.TAG)
+            .commit()
+    }
+
     private fun hideButton() {
-        binding.addTaskFab.hide()
+        addTaskFAB?.hide()
     }
 
     private fun showButton() {
-        binding.addTaskFab.show()
+        addTaskFAB?.show()
     }
 
     // To avoid leaking the window after configuration change

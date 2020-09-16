@@ -3,6 +3,7 @@ package com.kafleyozone.mytasks.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.kafleyozone.mytasks.Repository
 import com.kafleyozone.mytasks.models.Task
 
 class HomeViewModel: ViewModel() {
@@ -52,6 +53,13 @@ class HomeViewModel: ViewModel() {
             _taskList.add(0, task)
             _taskListObservable.value = _taskList
             newTaskText.value = ""
+            Repository.updateList(_taskList)
         }
+    }
+
+    fun deleteTask(deleteIndex: Int): Task {
+        _taskList.removeAt(deleteIndex)
+        _taskListObservable.value = _taskList
+        return Repository.deleteTask(deleteIndex)
     }
 }

@@ -15,6 +15,12 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="Theme.WhiteToolbar" parent="Widget.MaterialComponents.ActionBar.Surface">
+        <item name="android:fitsSystemWindows">true</item>
+        <item name="minHeight">?attr/actionBarSize</item>
+        <item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
+    </style>
+
     <!-- Icon-only button -->
     <style name="Widget.App.Button.OutlinedButton.IconOnly" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="iconPadding">0dp</item>
@@ -24,6 +30,17 @@
         <item name="android:paddingRight">8dp</item>
         <item name="android:minWidth">48dp</item>
         <item name="android:minHeight">48dp</item>
+    </style>
+
+    <style name="IsCompleteCheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:buttonTint">@color/dark_gray</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+    </style>
+
+    <style name="TextAppearance.LargeAndBold" parent="TextAppearance.AppCompat.Large">
+        <item name="android:textSize">28sp</item>
+        <item name="color">@color/black</item>
     </style>
 
 </resources>

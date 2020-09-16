@@ -6,14 +6,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.*
 
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.kafleyozone.mytasks.R
 import com.kafleyozone.mytasks.adapters.TaskListAdapter
@@ -25,11 +26,10 @@ import com.kafleyozone.mytasks.viewmodels.HomeViewModel
 
 val TAG = "HomeFragment"
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
 
     private val viewModel: HomeViewModel by viewModels()
     private var mDialog: BottomSheetDialog? = null
-
     private var addTaskFAB: FloatingActionButton? = null
 
     override fun onCreateView(
@@ -37,11 +37,7 @@ class HomeFragment : Fragment() {
             savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = LayoutInflater.from(requireContext()).inflate(
-                R.layout.fragment_home,
-                container,
-                false
-        )
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
         val taskListRecyclerView = view.findViewById<RecyclerView>(R.id.task_list_recycler_view)
         addTaskFAB = view.findViewById(R.id.add_task_fab)
 
@@ -49,8 +45,10 @@ class HomeFragment : Fragment() {
             viewModel.addNewTaskEventHandler()
         }
 
-        val adapter = TaskListAdapter(listOf())
+        val adapter = TaskListAdapter(listOf(), this)
         taskListRecyclerView.adapter = adapter
+
+        setFragmentResultListenerHelper(adapter, view)
 
         // in case the button is hidden when an orientation change happens and the add new task
         // dialog's onDismissed is NOT called, reset the button
@@ -70,6 +68,19 @@ class HomeFragment : Fragment() {
         })
 
         return view
+    }
+
+    private fun setFragmentResultListenerHelper(adapter: TaskListAdapter, view: View) {
+        setFragmentResultListener(TaskFragment.TASK_REQUEST) { _: String, bundle: Bundle ->
+            val deleteIndex = bundle.getInt(TaskFragment.DELETE_INDEX_ARG)
+            if (deleteIndex >= 0) {
+                val deletedTaskName = viewModel.deleteTask(deleteIndex).taskName
+                adapter.notifyItemRemoved(deleteIndex)
+                Snackbar.make(view, "\"$deletedTaskName\" deleted", Snackbar.LENGTH_SHORT)
+                        .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
+                        .show()
+            }
+        }
     }
 
     private fun addTaskHandler() {
@@ -103,6 +114,16 @@ class HomeFragment : Fragment() {
             viewModel.updateNewTaskText(it.toString())
             addTaskButton.isEnabled = it.toString().isNotBlank()
         }
+    }
+
+    override fun onTaskItemClicked(taskPosition: Int) {
+        // open a new TaskFragment, passing in taskId
+        val taskFragment = TaskFragment.newInstance(taskPosition)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, taskFragment)
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+            .addToBackStack(TaskFragment.TAG)
+            .commit()
     }
 
     private fun hideButton() {

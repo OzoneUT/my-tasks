@@ -24,7 +24,7 @@
             android:clipToPadding="false"
             android:overScrollMode="never"
             android:paddingTop="@dimen/dimen_margin_16"
-            android:paddingBottom="48dp"
+            android:paddingBottom="56dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -40,11 +40,12 @@
         android:layout_gravity="bottom"
         app:layout_anchorGravity="center"
         app:fabCradleRoundedCornerRadius="8dp"
-        app:fabCradleVerticalOffset="8dp"
         app:fabCradleMargin="6dp"
         app:navigationIcon="@drawable/round_menu_black_24dp"
         style="@style/HomeBottomAppBar"
-        app:menu="@menu/fragment_home_menu" />
+        app:menu="@menu/fragment_home_menu"
+        app:hideOnScroll="true"
+        app:elevation="10dp"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_task_fab"

@@ -21,6 +21,10 @@
         <item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
     </style>
 
+    <style name="HomeBottomAppBar" parent="Widget.MaterialComponents.BottomAppBar">
+        <item name="colorControlNormal">@color/dark_gray</item>
+    </style>
+
     <!-- Icon-only button -->
     <style name="Widget.App.Button.OutlinedButton.IconOnly" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="iconPadding">0dp</item>

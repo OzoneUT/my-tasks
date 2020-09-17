@@ -78,6 +78,7 @@ class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
                 adapter.notifyItemRemoved(deleteIndex)
                 Snackbar.make(view, "\"$deletedTaskName\" deleted", Snackbar.LENGTH_SHORT)
                         .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
+                        .setAnchorView(R.id.add_task_fab)
                         .show()
             }
         }

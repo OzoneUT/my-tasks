@@ -6,4 +6,5 @@
     <string name="add_a_task_hint">Add a task</string>
     <string name="task_required">Task (required)</string>
     <string name="delete">Delete</string>
+    <string name="more">More</string>
 </resources>

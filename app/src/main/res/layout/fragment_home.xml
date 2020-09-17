@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="match_parent"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -32,13 +33,26 @@
             app:layout_constraintTop_toBottomOf="@+id/include" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottom_app_Bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:layout_anchorGravity="center"
+        app:fabCradleRoundedCornerRadius="8dp"
+        app:fabCradleVerticalOffset="8dp"
+        app:fabCradleMargin="6dp"
+        app:navigationIcon="@drawable/round_menu_black_24dp"
+        style="@style/HomeBottomAppBar"
+        app:menu="@menu/fragment_home_menu" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_task_fab"
-        android:layout_gravity="bottom|end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dimen_margin_16"
         android:contentDescription="@string/ada_add_task"
-        android:src="@drawable/round_add_black_36dp" />
+        android:src="@drawable/round_add_black_36dp"
+        app:maxImageSize="36dp"
+        app:layout_anchor="@id/bottom_app_Bar" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

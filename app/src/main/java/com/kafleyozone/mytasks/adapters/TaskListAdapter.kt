@@ -35,7 +35,6 @@ class TaskListAdapter(private var dataSet: List<Task>, private val listener: OnT
     class ViewHolder private constructor(view: View, private val listener: OnTaskItemClickedListener)
         : RecyclerView.ViewHolder(view), View.OnClickListener {
 
-        private lateinit var mTask: Task
         private val taskNameTextView: TextView = view.findViewById(R.id.task_name_textview)
         private val isCompleteCheckBox: MaterialCheckBox = view.findViewById(R.id.is_complete_checkbox)
 
@@ -48,14 +47,13 @@ class TaskListAdapter(private var dataSet: List<Task>, private val listener: OnT
         }
 
         fun bind(task: Task) {
-            mTask = task
-            taskNameTextView.text = task.taskName
-            isCompleteCheckBox.isChecked = task.isComplete
-            taskNameTextView.showStrikeThrough(task.isComplete)
-            isCompleteCheckBox.setOnCheckedChangeListener() { _: CompoundButton, checked: Boolean ->
+            isCompleteCheckBox.setOnCheckedChangeListener { _: CompoundButton, checked: Boolean ->
                 task.isComplete = checked
                 taskNameTextView.showStrikeThrough(checked)
             }
+            taskNameTextView.text = task.taskName
+            isCompleteCheckBox.isChecked = task.isComplete ?: false
+            taskNameTextView.showStrikeThrough(task.isComplete ?: false)
             itemView.setOnClickListener(this)
         }
 

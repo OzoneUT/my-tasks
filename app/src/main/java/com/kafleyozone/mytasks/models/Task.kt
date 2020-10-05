@@ -1,7 +1,11 @@
 package com.kafleyozone.mytasks.models
 
-import java.util.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-data class Task(var taskName: String = "", var isComplete: Boolean = false) {
-    val id: String = UUID.randomUUID().toString()
-}
+@Entity(tableName = "tasks")
+data class Task(
+    @ColumnInfo(name = "task_name") var taskName: String?,
+    @ColumnInfo(name = "is_complete") var isComplete: Boolean?,
+    @PrimaryKey(autoGenerate = true) var id: Int = -1)

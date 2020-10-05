@@ -1,26 +1,33 @@
 package com.kafleyozone.mytasks
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.kafleyozone.mytasks.models.Task
 
 object Repository {
-    private var _list = mutableListOf<Task>()
-    val list: List<Task>
+
+    private val _list = MutableLiveData<MutableList<Task>>()
+    val list: LiveData<MutableList<Task>>
         get() = _list
 
-    fun getTaskById(id: String): Task? {
-        _list.forEach {
-            if (it.id == id) {
-                return it
-            }
-        }
-        return null
+    init {
+        _list.value = mutableListOf()
     }
 
-    fun updateList(newList: List<Task>) {
-        _list = newList.toMutableList()
+    fun deleteTask(position: Int): Task? {
+        val deleted = _list.value?.removeAt(position)
+        _list.notifyObserver()
+        return deleted
     }
 
-    fun deleteTask(position: Int): Task {
-        return _list.removeAt(position)
+    fun addTask(task: Task) {
+        _list.value?.add(0, task)
+        _list.notifyObserver()
     }
+}
+
+// invokes the LiveData's setValue function to notify observers that an element inside the list
+// has changed
+fun <T> MutableLiveData<T>.notifyObserver() {
+    this.value = this.value
 }

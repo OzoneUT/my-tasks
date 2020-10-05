@@ -19,13 +19,7 @@ class HomeViewModel: ViewModel() {
 
     private var newTaskText = MutableLiveData<String>()
 
-    // LiveData are only triggered by a setValue call, which isn't called when updating the internal
-    // collection. Workaround is to maintain a separate collection and assign it after modifying the
-    // collection.
-    private val _taskList = mutableListOf<Task>()
-    private val _taskListObservable = MutableLiveData<List<Task>>()
-    val taskListObservable: LiveData<List<Task>>
-        get() = _taskListObservable
+    val taskList = Repository.list
 
     fun addNewTaskEventHandler() {
         _addNewTaskClickEvent.value = true
@@ -49,17 +43,13 @@ class HomeViewModel: ViewModel() {
 
     fun addTask() {
         if (!newTaskText.value.isNullOrBlank()) {
-            val task = Task(newTaskText.value!!)
-            _taskList.add(0, task)
-            _taskListObservable.value = _taskList
+            val task = Task(newTaskText.value!!, false)
+            Repository.addTask(task)
             newTaskText.value = ""
-            Repository.updateList(_taskList)
         }
     }
 
-    fun deleteTask(deleteIndex: Int): Task {
-        _taskList.removeAt(deleteIndex)
-        _taskListObservable.value = _taskList
+    fun deleteTask(deleteIndex: Int): Task? {
         return Repository.deleteTask(deleteIndex)
     }
 }

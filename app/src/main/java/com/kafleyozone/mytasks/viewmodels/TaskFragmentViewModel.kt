@@ -17,7 +17,7 @@ class TaskFragmentViewModel : ViewModel() {
         get() = _task
 
     fun setTask(taskPosition: Int) {
-        _task.value = Repository.list[taskPosition]
+        _task.value = Repository.list.value?.get(taskPosition)
         this._taskPosition = taskPosition
     }
 

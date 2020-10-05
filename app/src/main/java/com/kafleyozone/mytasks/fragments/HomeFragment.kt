@@ -62,7 +62,7 @@ class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
             if (showAddTaskButton) showButton() else hideButton()
         })
 
-        viewModel.taskListObservable.observe(viewLifecycleOwner, { taskList ->
+        viewModel.taskList.observe(viewLifecycleOwner, { taskList ->
             adapter.updateList(taskList)
             adapter.notifyItemInserted(0)
         })
@@ -74,7 +74,7 @@ class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
         setFragmentResultListener(TaskFragment.TASK_REQUEST) { _: String, bundle: Bundle ->
             val deleteIndex = bundle.getInt(TaskFragment.DELETE_INDEX_ARG)
             if (deleteIndex >= 0) {
-                val deletedTaskName = viewModel.deleteTask(deleteIndex).taskName
+                val deletedTaskName = viewModel.deleteTask(deleteIndex)?.taskName
                 adapter.notifyItemRemoved(deleteIndex)
                 Snackbar.make(view, "\"$deletedTaskName\" deleted", Snackbar.LENGTH_SHORT)
                         .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
@@ -90,7 +90,6 @@ class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
         viewModel.addNewTaskClickEventCompleted()
     }
 
-    @SuppressLint("InflateParams")
     private fun showNewTaskDialog() {
         val addTaskView = layoutInflater.inflate(R.layout.dialog_add_task, null, false)
         val newTaskField = addTaskView.findViewById<TextInputEditText>(R.id.new_task_field)

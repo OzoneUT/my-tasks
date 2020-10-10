@@ -5,12 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
-import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.kafleyozone.mytasks.R
-import com.kafleyozone.mytasks.models.Task
+import com.kafleyozone.mytasks.data.Task
 
 class TaskListAdapter(private var dataSet: List<Task>, private val listener: OnTaskItemClickedListener):
         RecyclerView.Adapter<TaskListAdapter.ViewHolder>() {
@@ -37,6 +36,7 @@ class TaskListAdapter(private var dataSet: List<Task>, private val listener: OnT
 
         private val taskNameTextView: TextView = view.findViewById(R.id.task_name_textview)
         private val isCompleteCheckBox: MaterialCheckBox = view.findViewById(R.id.is_complete_checkbox)
+        private lateinit var mTask: Task
 
         companion object {
             fun from(parent: ViewGroup, listener: OnTaskItemClickedListener): ViewHolder {
@@ -47,6 +47,7 @@ class TaskListAdapter(private var dataSet: List<Task>, private val listener: OnT
         }
 
         fun bind(task: Task) {
+            mTask = task
             isCompleteCheckBox.setOnCheckedChangeListener { _: CompoundButton, checked: Boolean ->
                 task.isComplete = checked
                 taskNameTextView.showStrikeThrough(checked)
@@ -57,13 +58,13 @@ class TaskListAdapter(private var dataSet: List<Task>, private val listener: OnT
             itemView.setOnClickListener(this)
         }
 
-        override fun onClick(p0: View?) {
-            listener.onTaskItemClicked(adapterPosition)
+        override fun onClick(v: View?) {
+            listener.onTaskItemClicked(mTask.id)
         }
     }
 
     interface OnTaskItemClickedListener {
-        fun onTaskItemClicked(taskPosition: Int)
+        fun onTaskItemClicked(taskId: Int)
     }
 }
 

@@ -3,10 +3,17 @@ package com.kafleyozone.mytasks.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.kafleyozone.mytasks.Repository
-import com.kafleyozone.mytasks.models.Task
+import androidx.hilt.lifecycle.ViewModelInject
+import androidx.lifecycle.viewModelScope
+import com.kafleyozone.mytasks.data.Repository
+import com.kafleyozone.mytasks.data.Task
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class HomeViewModel: ViewModel() {
+class HomeViewModel @ViewModelInject constructor(
+    private val repository: Repository
+): ViewModel() {
 
     // event triggered by tapping Add Task FAB
     private val _addNewTaskClickEvent = MutableLiveData<Boolean>()
@@ -19,7 +26,8 @@ class HomeViewModel: ViewModel() {
 
     private var newTaskText = MutableLiveData<String>()
 
-    val taskList = Repository.list
+    val taskList = repository.getTasks()
+
 
     fun addNewTaskEventHandler() {
         _addNewTaskClickEvent.value = true
@@ -44,12 +52,12 @@ class HomeViewModel: ViewModel() {
     fun addTask() {
         if (!newTaskText.value.isNullOrBlank()) {
             val task = Task(newTaskText.value!!, false)
-            Repository.addTask(task)
+            repository.addTask(task)
             newTaskText.value = ""
         }
     }
 
-    fun deleteTask(deleteIndex: Int): Task? {
-        return Repository.deleteTask(deleteIndex)
+    fun deleteTask(deleteIndex: Int): String? {
+        return repository.deleteTask(deleteIndex)
     }
 }

@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.widget.*
 import androidx.core.os.bundleOf
 import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -15,10 +16,12 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
 import com.kafleyozone.mytasks.R
 import com.kafleyozone.mytasks.viewmodels.TaskFragmentViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
-const val ARG_TASK_POS = "arg_task_oos"
-
+@AndroidEntryPoint
 class TaskFragment : Fragment() {
+
+    val TAG = "TaskFragment"
 
     private val viewModel: TaskFragmentViewModel by viewModels()
     private lateinit var mToolbar: MaterialToolbar
@@ -27,7 +30,7 @@ class TaskFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.setTask(arguments?.get(ARG_TASK_POS) as Int)
+        viewModel.setTask(arguments?.get(TASK_ID_ARG) as Int)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -40,16 +43,16 @@ class TaskFragment : Fragment() {
         nameInput = view.findViewById(R.id.task_fragment_name_edittext)
         isCompleteCheckbox = view.findViewById(R.id.task_fragment_is_complete)
 
-        nameInput.setText(viewModel.task.value?.taskName)
+        nameInput.setText(viewModel.task.taskName)
         onTextChange(nameInput.editableText)
-        isCompleteCheckbox.isChecked = viewModel.task.value?.isComplete ?: false
-        onCheckedChange(viewModel.task.value?.isComplete ?: false)
+        isCompleteCheckbox.isChecked = viewModel.task.isComplete ?: false
+        onCheckedChange(viewModel.task.isComplete ?: false)
 
-        nameInput.addTextChangedListener() {
+        nameInput.doAfterTextChanged {
             onTextChange(it)
         }
 
-        isCompleteCheckbox.setOnCheckedChangeListener() { _: CompoundButton, checked: Boolean ->
+        isCompleteCheckbox.setOnCheckedChangeListener { _: CompoundButton, checked: Boolean ->
             onCheckedChange(checked)
         }
         return view
@@ -70,7 +73,7 @@ class TaskFragment : Fragment() {
         mToolbar.setNavigationOnClickListener {
             requireActivity().onBackPressed()
         }
-        mToolbar.setOnMenuItemClickListener() { item ->
+        mToolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_delete -> {
                     onActionDelete()
@@ -83,19 +86,20 @@ class TaskFragment : Fragment() {
 
     private fun onActionDelete() {
         setFragmentResult(TASK_REQUEST,
-                bundleOf(DELETE_INDEX_ARG to viewModel.taskPosition))
+                bundleOf(DELETE_TASK_ID_ARG to viewModel.task.id))
         parentFragmentManager.popBackStackImmediate()
     }
 
     companion object {
-        const val TAG = "TaskFragment"
         const val TASK_REQUEST = "task_request"
-        const val DELETE_INDEX_ARG = "delete_index_arg"
+        const val DELETE_TASK_ID_ARG = "delete_task_id_arg"
+        private const val TASK_ID_ARG = "arg_task_pos"
+
         @JvmStatic
-        fun newInstance(taskPosition: Int) =
+        fun newInstance(taskId: Int) =
                 TaskFragment().apply {
                     arguments = Bundle().apply {
-                        putInt(ARG_TASK_POS, taskPosition)
+                        putInt(TASK_ID_ARG, taskId)
                     }
                 }
     }

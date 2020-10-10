@@ -1,12 +1,10 @@
 package com.kafleyozone.mytasks.fragments
 
-import android.annotation.SuppressLint
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.*
 
@@ -22,10 +20,12 @@ import com.kafleyozone.mytasks.adapters.TaskListAdapter
 import com.kafleyozone.mytasks.utils.createNewTaskDialog
 import com.kafleyozone.mytasks.utils.showSoftInput
 import com.kafleyozone.mytasks.viewmodels.HomeViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
 
 val TAG = "HomeFragment"
 
+@AndroidEntryPoint
 class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
 
     private val viewModel: HomeViewModel by viewModels()
@@ -45,7 +45,7 @@ class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
             viewModel.addNewTaskEventHandler()
         }
 
-        val adapter = TaskListAdapter(listOf(), this)
+        val adapter = TaskListAdapter(viewModel.taskList.value ?: listOf(), this)
         taskListRecyclerView.adapter = adapter
 
         setFragmentResultListenerHelper(adapter, view)
@@ -64,7 +64,7 @@ class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
 
         viewModel.taskList.observe(viewLifecycleOwner, { taskList ->
             adapter.updateList(taskList)
-            adapter.notifyItemInserted(0)
+            adapter.notifyDataSetChanged()
         })
 
         return view
@@ -72,10 +72,10 @@ class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
 
     private fun setFragmentResultListenerHelper(adapter: TaskListAdapter, view: View) {
         setFragmentResultListener(TaskFragment.TASK_REQUEST) { _: String, bundle: Bundle ->
-            val deleteIndex = bundle.getInt(TaskFragment.DELETE_INDEX_ARG)
-            if (deleteIndex >= 0) {
-                val deletedTaskName = viewModel.deleteTask(deleteIndex)?.taskName
-                adapter.notifyItemRemoved(deleteIndex)
+            val deleteTaskId = bundle.getInt(TaskFragment.DELETE_TASK_ID_ARG)
+            if (deleteTaskId >= 0) {
+                val deletedTaskName = viewModel.deleteTask(deleteTaskId)
+                adapter.notifyDataSetChanged()
                 Snackbar.make(view, "\"$deletedTaskName\" deleted", Snackbar.LENGTH_SHORT)
                         .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
                         .setAnchorView(R.id.add_task_fab)
@@ -101,7 +101,7 @@ class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
         }
 
         mDialog = createNewTaskDialog(requireContext(), addTaskView)
-        mDialog?.setOnDismissListener() {
+        mDialog?.setOnDismissListener {
             showButton()
         }
         mDialog?.show()
@@ -110,19 +110,19 @@ class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
     }
 
     private fun addTextInputListener(newTaskField: TextInputEditText, addTaskButton: MaterialButton) {
-        newTaskField.addTextChangedListener() {
+        newTaskField.addTextChangedListener {
             viewModel.updateNewTaskText(it.toString())
             addTaskButton.isEnabled = it.toString().isNotBlank()
         }
     }
 
-    override fun onTaskItemClicked(taskPosition: Int) {
-        // open a new TaskFragment, passing in taskId
-        val taskFragment = TaskFragment.newInstance(taskPosition)
+    override fun onTaskItemClicked(taskId: Int) {
+        // open a new TaskFragment, passing in task index
+        val taskFragment = TaskFragment.newInstance(taskId)
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, taskFragment)
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-            .addToBackStack(TaskFragment.TAG)
+            .addToBackStack(null)
             .commit()
     }
 

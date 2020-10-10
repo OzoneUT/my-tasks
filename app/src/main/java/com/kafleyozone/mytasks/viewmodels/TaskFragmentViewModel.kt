@@ -1,31 +1,31 @@
 package com.kafleyozone.mytasks.viewmodels
 
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.kafleyozone.mytasks.Repository
-import com.kafleyozone.mytasks.models.Task
-import kotlin.properties.Delegates
+import com.kafleyozone.mytasks.data.Repository
+import com.kafleyozone.mytasks.data.Task
 
-class TaskFragmentViewModel : ViewModel() {
-    private var _taskPosition = -1
-    val taskPosition: Int
-        get() = _taskPosition
+class TaskFragmentViewModel @ViewModelInject constructor(
+    private val repository: Repository
+) : ViewModel() {
 
-    private var _task = MutableLiveData<Task>()
-    val task: LiveData<Task>
+    private lateinit var _task: Task
+    val task: Task
         get() = _task
 
-    fun setTask(taskPosition: Int) {
-        _task.value = Repository.list.value?.get(taskPosition)
-        this._taskPosition = taskPosition
+    fun setTask(taskId: Int) {
+       _task = repository.getTask(taskId)
     }
 
     fun updateTaskName(newName: String) {
-        _task.value?.taskName = newName
+        _task.taskName = newName
+        repository.updateTask(task)
     }
 
     fun updateTaskComplete(isComplete: Boolean) {
-        _task.value?.isComplete = isComplete
+        _task.isComplete = isComplete
+        repository.updateTask(task)
     }
 }

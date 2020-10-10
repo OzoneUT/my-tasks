@@ -6,7 +6,9 @@ import android.widget.FrameLayout
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import com.kafleyozone.mytasks.fragments.HomeFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

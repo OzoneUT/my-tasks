@@ -1,27 +1,26 @@
 package com.kafleyozone.mytasks.data
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class Repository @Inject constructor(private val taskDao: TaskDao) {
 
-    fun getTask(taskId: Int) = taskDao.getTask(taskId)
+    fun getTask(taskId: Long) = taskDao.getTask(taskId)
 
     fun getTasks() = taskDao.getAllTasks()
 
-    fun deleteTask(taskId: Int): String? {
-        val deleted = taskDao.getTask(taskId)
-        val deletedTaskName = deleted.taskName
-        taskDao.deleteTasks(deleted)
-        return deletedTaskName
+    suspend fun deleteTask(taskId: Long) {
+        taskDao.deleteTaskById(taskId)
     }
 
-    fun addTask(task: Task) {
+    suspend fun addTask(task: Task) {
         taskDao.insertTasks(task)
     }
 
-    fun updateTask(task: Task) {
+    suspend fun updateTask(task: Task) {
         taskDao.updateTask(task)
     }
 }

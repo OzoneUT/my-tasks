@@ -7,10 +7,8 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.*
 import androidx.core.os.bundleOf
-import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
@@ -30,7 +28,7 @@ class TaskFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.setTask(arguments?.get(TASK_ID_ARG) as Int)
+        viewModel.setTask(arguments?.get(TASK_ID_ARG) as Long)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -86,20 +84,22 @@ class TaskFragment : Fragment() {
 
     private fun onActionDelete() {
         setFragmentResult(TASK_REQUEST,
-                bundleOf(DELETE_TASK_ID_ARG to viewModel.task.id))
+                bundleOf(DELETE_TASK_ID_ARG to viewModel.task.id,
+                        DELETE_TASK_NAME_ARG to viewModel.task.taskName))
         parentFragmentManager.popBackStackImmediate()
     }
 
     companion object {
         const val TASK_REQUEST = "task_request"
         const val DELETE_TASK_ID_ARG = "delete_task_id_arg"
+        const val DELETE_TASK_NAME_ARG = "delete_task_name_arg"
         private const val TASK_ID_ARG = "arg_task_pos"
 
         @JvmStatic
-        fun newInstance(taskId: Int) =
+        fun newInstance(taskId: Long) =
                 TaskFragment().apply {
                     arguments = Bundle().apply {
-                        putInt(TASK_ID_ARG, taskId)
+                        putLong(TASK_ID_ARG, taskId)
                     }
                 }
     }

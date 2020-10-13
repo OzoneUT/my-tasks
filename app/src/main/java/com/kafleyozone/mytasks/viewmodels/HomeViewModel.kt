@@ -7,9 +7,9 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.viewModelScope
 import com.kafleyozone.mytasks.data.Repository
 import com.kafleyozone.mytasks.data.Task
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 
 class HomeViewModel @ViewModelInject constructor(
     private val repository: Repository
@@ -50,14 +50,23 @@ class HomeViewModel @ViewModelInject constructor(
     }
 
     fun addTask() {
-        if (!newTaskText.value.isNullOrBlank()) {
-            val task = Task(newTaskText.value!!, false)
-            repository.addTask(task)
-            newTaskText.value = ""
+        viewModelScope.launch(Dispatchers.IO) {
+            if (!newTaskText.value.isNullOrBlank()) {
+                val task = Task(newTaskText.value!!, false)
+                repository.addTask(task)
+            }
         }
     }
 
-    fun deleteTask(deleteIndex: Int): String? {
-        return repository.deleteTask(deleteIndex)
+    fun deleteTask(deleteIndex: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteTask(deleteIndex)
+        }
+    }
+
+    fun updateTask(updatedTask: Task) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateTask(updatedTask)
+        }
     }
 }

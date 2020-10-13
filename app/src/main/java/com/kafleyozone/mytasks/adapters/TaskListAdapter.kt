@@ -51,6 +51,7 @@ class TaskListAdapter(private var dataSet: List<Task>, private val listener: OnT
             isCompleteCheckBox.setOnCheckedChangeListener { _: CompoundButton, checked: Boolean ->
                 task.isComplete = checked
                 taskNameTextView.showStrikeThrough(checked)
+                listener.onTaskItemSetCompleted(task)
             }
             taskNameTextView.text = task.taskName
             isCompleteCheckBox.isChecked = task.isComplete ?: false
@@ -64,7 +65,8 @@ class TaskListAdapter(private var dataSet: List<Task>, private val listener: OnT
     }
 
     interface OnTaskItemClickedListener {
-        fun onTaskItemClicked(taskId: Int)
+        fun onTaskItemSetCompleted(updatedTask: Task)
+        fun onTaskItemClicked(taskId: Long?)
     }
 }
 

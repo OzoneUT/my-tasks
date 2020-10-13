@@ -12,12 +12,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.kafleyozone.mytasks.R
 import com.kafleyozone.mytasks.adapters.TaskListAdapter
+import com.kafleyozone.mytasks.data.Task
 
 import com.kafleyozone.mytasks.utils.createNewTaskDialog
+import com.kafleyozone.mytasks.utils.showSnackbar
 import com.kafleyozone.mytasks.utils.showSoftInput
 import com.kafleyozone.mytasks.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -48,7 +49,7 @@ class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
         val adapter = TaskListAdapter(viewModel.taskList.value ?: listOf(), this)
         taskListRecyclerView.adapter = adapter
 
-        setFragmentResultListenerHelper(adapter, view)
+        setFragmentResultListenerHelper(adapter)
 
         // in case the button is hidden when an orientation change happens and the add new task
         // dialog's onDismissed is NOT called, reset the button
@@ -70,16 +71,14 @@ class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
         return view
     }
 
-    private fun setFragmentResultListenerHelper(adapter: TaskListAdapter, view: View) {
+    private fun setFragmentResultListenerHelper(adapter: TaskListAdapter) {
         setFragmentResultListener(TaskFragment.TASK_REQUEST) { _: String, bundle: Bundle ->
-            val deleteTaskId = bundle.getInt(TaskFragment.DELETE_TASK_ID_ARG)
-            if (deleteTaskId >= 0) {
-                val deletedTaskName = viewModel.deleteTask(deleteTaskId)
+            val deleteTaskId = bundle.getLong(TaskFragment.DELETE_TASK_ID_ARG)
+            val deleteTaskName = bundle.getString(TaskFragment.DELETE_TASK_NAME_ARG)
+            if (deleteTaskId >= 0 && !deleteTaskName.isNullOrBlank()) {
+                viewModel.deleteTask(deleteTaskId)
                 adapter.notifyDataSetChanged()
-                Snackbar.make(view, "\"$deletedTaskName\" deleted", Snackbar.LENGTH_SHORT)
-                        .setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE)
-                        .setAnchorView(R.id.add_task_fab)
-                        .show()
+                showSnackbar(requireView(), deleteTaskName)
             }
         }
     }
@@ -116,14 +115,20 @@ class HomeFragment : Fragment(), TaskListAdapter.OnTaskItemClickedListener{
         }
     }
 
-    override fun onTaskItemClicked(taskId: Int) {
+    override fun onTaskItemSetCompleted(updatedTask: Task) {
+        viewModel.updateTask(updatedTask)
+    }
+
+    override fun onTaskItemClicked(taskId: Long?) {
         // open a new TaskFragment, passing in task index
-        val taskFragment = TaskFragment.newInstance(taskId)
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, taskFragment)
-            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-            .addToBackStack(null)
-            .commit()
+        taskId?.let {
+            val taskFragment = TaskFragment.newInstance(taskId)
+            parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, taskFragment)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    .addToBackStack(null)
+                    .commit()
+        }
     }
 
     private fun hideButton() {

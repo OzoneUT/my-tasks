@@ -1,11 +1,12 @@
 package com.kafleyozone.mytasks.viewmodels
 
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.kafleyozone.mytasks.data.Repository
 import com.kafleyozone.mytasks.data.Task
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class TaskFragmentViewModel @ViewModelInject constructor(
     private val repository: Repository
@@ -15,17 +16,24 @@ class TaskFragmentViewModel @ViewModelInject constructor(
     val task: Task
         get() = _task
 
-    fun setTask(taskId: Int) {
-       _task = repository.getTask(taskId)
+    fun setTask(taskId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _task = repository.getTask(taskId)
+        }
     }
 
     fun updateTaskName(newName: String) {
-        _task.taskName = newName
-        repository.updateTask(task)
+        viewModelScope.launch(Dispatchers.IO) {
+            _task.taskName = newName
+            repository.updateTask(task)
+        }
+
     }
 
     fun updateTaskComplete(isComplete: Boolean) {
-        _task.isComplete = isComplete
-        repository.updateTask(task)
+        viewModelScope.launch(Dispatchers.IO) {
+            _task.isComplete = isComplete
+            repository.updateTask(task)
+        }
     }
 }

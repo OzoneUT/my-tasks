@@ -7,17 +7,17 @@ import androidx.room.*
 interface TaskDao {
 
     @Query("SELECT * FROM tasks WHERE id = :id LIMIT 1")
-    fun getTask(id: Int): Task
+    fun getTask(id: Long): Task
 
     @Query("SELECT * FROM tasks")
     fun getAllTasks(): LiveData<List<Task>>
 
     @Insert
-    fun insertTasks(vararg tasks: Task)
+    suspend fun insertTasks(vararg tasks: Task)
 
     @Update
-    fun updateTask(vararg tasks: Task)
+    suspend fun updateTask(vararg tasks: Task)
 
-    @Delete
-    fun deleteTasks(vararg tasks: Task)
+    @Query("DELETE FROM tasks WHERE id = :id")
+    suspend fun deleteTaskById(id: Long)
 }
